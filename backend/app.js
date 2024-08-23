@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const booksRoutes = require("./routes/books.js");
+const userRoutes = require("./routes/user.js");
+
 
 mongoose
   .connect(
@@ -25,6 +27,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api/stuff", booksRoutes);
+app.use("/api/books", booksRoutes);
+app.use("/api/auth", userRoutes);
+
 
 module.exports = app;
