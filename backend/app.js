@@ -1,9 +1,9 @@
 const express = require("express");
-const app = express();
+const path = require("path");
 const mongoose = require("mongoose");
-const booksRoutes = require("./routes/books.js");
-const userRoutes = require("./routes/user.js");
-
+const bookRoutes = require("./routes/books");
+const userRoutes = require("./routes/user");
+const app = express();
 
 mongoose
   .connect(
@@ -14,6 +14,7 @@ mongoose
 
 app.use(express.json());
 
+// Middleware pour gérer CORS
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
@@ -27,8 +28,13 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api/books", booksRoutes);
-app.use("/api/auth", userRoutes);
+// Middleware pour servir les fichiers statiques
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
+// Routes pour les livres
+app.use("/api/books", bookRoutes);
+
+// Routes pour l'authentification
+app.use("/api/auth", userRoutes);
 
 module.exports = app;
