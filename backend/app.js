@@ -5,6 +5,7 @@ const bookRoutes = require("./routes/books");
 const userRoutes = require("./routes/user");
 const app = express();
 
+// Connexion à MongoDB
 mongoose
   .connect(
     "mongodb+srv://user00:test123@grimoire.hgl1l.mongodb.net/?retryWrites=true&w=majority&appName=Grimoire"
@@ -12,6 +13,7 @@ mongoose
   .then(() => console.log("Connexion à MongoDB réussie !"))
   .catch((error) => console.log("Connexion à MongoDB échouée !"));
 
+// Middleware pour parser les requêtes JSON
 app.use(express.json());
 
 // Middleware pour gérer CORS
