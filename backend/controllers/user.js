@@ -19,29 +19,38 @@ exports.signup = (req, res, next) => {
 };
 
 exports.login = (req, res, next) => {
-  console.log("Login route accessed");  // Log pour vérifier si la route est atteinte
+  console.log("Login route accessed");
+
+  // Ajout d'un log pour vérifier la clé secrète utilisée
+  console.log("Clé secrète utilisée pour signer le token :", process.env.JWT_SECRET);
+  
   User.findOne({ email: req.body.email })
     .then((user) => {
-      if (user === null) {
-        res.status(401).json({ message: "Paire identifiant/mot de passe incorrecte" });
-      } else {
-        bcrypt.compare(req.body.password, user.password)
-          .then((valid) => {
-            if (!valid) {
-              res.status(401).json({ message: "Paire identifiant/mot de passe incorrecte" });
-            } else {
-              res.status(200).json({
-                userId: user._id,
-                token: jwt.sign({ userId: user._id }, "RANDOM_TOKEN_SECRET", { expiresIn: "24h" }),
-              });
-            }
-          })
-          .catch((error) => {
-            res.status(500).json({ error });
-          });
+      if (!user) {
+        return res.status(401).json({ message: "Paire identifiant/mot de passe incorrecte" });
       }
+      bcrypt.compare(req.body.password, user.password)
+        .then((valid) => {
+          if (!valid) {
+            return res.status(401).json({ message: "Paire identifiant/mot de passe incorrecte" });
+          }
+          
+          // Générer un token JWT si l'authentification est réussie
+          const token = jwt.sign(
+            { userId: user._id },                 // Payload : les données incluses dans le token
+            process.env.JWT_SECRET,               // Clé secrète pour signer le token
+            { expiresIn: "24h" }                  // Durée de validité du token
+          );
+          
+          console.log("Token généré :", token); // Ajout d'un log pour voir le token généré
+
+          // Renvoyer le token JWT au client
+          res.status(200).json({
+            userId: user._id,
+            token: token
+          });
+        })
+        .catch((error) => res.status(500).json({ error }));
     })
-    .catch((error) => {
-      res.status(500).json({ error });
-    });
+    .catch((error) => res.status(500).json({ error }));
 };

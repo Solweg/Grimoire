@@ -7,8 +7,11 @@ const bookController = require("../controllers/books.js");
 // Route POST pour créer un livre
 router.post("/", auth, multer, bookController.createBook);
 
+// Route POST pour la notation des livres
+router.post("/:id/rating", auth, bookController.rateBook);
+
 // Route PUT pour modifier un livre
-router.put("/:id",auth, multer, bookController.updateBook);
+router.put("/:id", auth, multer, bookController.updateBook);
 
 // Route DELETE pour supprimer un livre
 router.delete("/:id", auth, bookController.deleteBook);

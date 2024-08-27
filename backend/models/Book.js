@@ -14,7 +14,6 @@ const bookSchema = mongoose.Schema({
       grade: {type: Number},
     }
 ],
-
   averageRating: {type: Number, default:0}
 });
 
