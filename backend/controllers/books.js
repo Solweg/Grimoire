@@ -95,43 +95,41 @@ exports.getAllBooks = (req, res, next) => {
         .catch((error) => res.status(400).json({ error }));
 };
 
-// Noter un livre
+// Fonction pour noter un livre et recalculer la moyenne
 exports.rateBook = (req, res, next) => {
-    const { grade } = req.body;  // La note envoyée par l'utilisateur
+    const { rating } = req.body;  // La note envoyée par l'utilisateur
     const userId = req.auth.userId; // ID de l'utilisateur authentifié
-
-    // Vérifiez que la note est bien dans la plage acceptable (par exemple, 1 à 5)
-    if (grade < 1 || grade > 5) {
-        return res.status(400).json({ message: "La note doit être comprise entre 1 et 5." });
-    }
-
+   
     // Recherchez le livre par son ID
     Book.findOne({ _id: req.params.id })
-        .then((book) => {
+        .then(book => {
             if (!book) {
                 return res.status(404).json({ message: "Livre non trouvé." });
             }
 
             // Vérifiez si l'utilisateur a déjà noté ce livre
-            const existingRating = book.ratings.find(rating => rating.userId === userId);
+            const existingRating = book.ratings.some(rating => rating.userId === userId);
 
             if (existingRating) {
                 // Si l'utilisateur a déjà noté, mettre à jour la note
-                existingRating.grade = grade;
-            } else {
-                // Si l'utilisateur n'a pas encore noté, ajouter la nouvelle note
-                book.ratings.push({ userId: userId, grade: grade });
-            }
+                // existingRating.grade = grade;
+            return res.status(403).json({ message: "Livre déjà noté !" });
+                
+            } 
+            
 
-            // Recalculer la moyenne des notes
+            book.ratings.push({ userId: userId, grade: rating});
+
+            // Recalculez la moyenne des notes
             const totalRatings = book.ratings.length;
             const sumRatings = book.ratings.reduce((sum, rating) => sum + rating.grade, 0);
             book.averageRating = sumRatings / totalRatings;
 
-            // Sauvegarder le livre avec la nouvelle note
+            // Sauvegardez le livre avec la nouvelle note et la nouvelle moyenne
             book.save()
-                .then(() => res.status(200).json({ message: "Note ajoutée avec succès !", averageRating: book.averageRating }))
+                .then(() => res.status(201).json( Book ))
                 .catch(error => res.status(400).json({ error }));
         })
         .catch(error => res.status(500).json({ error }));
 };
+
