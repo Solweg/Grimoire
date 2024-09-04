@@ -8,7 +8,7 @@ const app = express();
 // Connexion à MongoDB
 mongoose
   .connect(
-    "mongodb+srv://user00:test123@grimoire.hgl1l.mongodb.net/?retryWrites=true&w=majority&appName=Grimoire"
+    "mongodb+srv://user00:test123@grimoire.hgl1l.mongodb.net/Grimoire?retryWrites=true&w=majority"
   )
   .then(() => console.log("Connexion à MongoDB réussie !"))
   .catch((error) => console.log("Connexion à MongoDB échouée !"));
