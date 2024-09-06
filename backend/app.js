@@ -1,34 +1,26 @@
 const express = require("express");
 const path = require("path");
 const mongoose = require("mongoose");
+const cors = require("cors"); // Import du package cors
 const bookRoutes = require("./routes/books");
 const userRoutes = require("./routes/user");
+require("dotenv").config(); // Chargement des variables d'environnement
+
 const app = express();
 
 // Connexion à MongoDB
 mongoose
   .connect(
-    "mongodb+srv://user00:test123@grimoire.hgl1l.mongodb.net/Grimoire?retryWrites=true&w=majority"
+    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@grimoire.hgl1l.mongodb.net/grimoire?retryWrites=true&w=majority`
   )
   .then(() => console.log("Connexion à MongoDB réussie !"))
-  .catch((error) => console.log("Connexion à MongoDB échouée !"));
+  .catch((error) => console.error("Connexion à MongoDB échouée :", error));
 
 // Middleware pour parser les requêtes JSON
 app.use(express.json());
 
 // Middleware pour gérer CORS
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content, Accept, Content-Type, Authorization"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, PATCH, OPTIONS"
-  );
-  next();
-});
+app.use(cors()); // Utilisation de CORS pour permettre les requêtes Cross-Origin
 
 // Middleware pour servir les fichiers statiques
 app.use('/images', express.static(path.join(__dirname, 'images')));

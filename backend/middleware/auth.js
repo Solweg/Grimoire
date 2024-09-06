@@ -1,19 +1,22 @@
 const jwt = require("jsonwebtoken");
 
 module.exports = (req, res, next) => {
-    try {
-        const token = req.headers.authorization.split(" ")[1];
-        console.log("Token reçu:", token); // Vérifiez que le token est bien reçu
-        
-        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-        console.log("Token décodé :", decodedToken); // Vérifiez que le token est bien décodé
+  try {
+    // Extraction du token de la requête d'en-tête
+    const token = req.headers.authorization.split(" ")[1];
 
-        req.auth = {
-            userId: decodedToken.userId
-        };
-        next();
-    } catch (error) {
-        console.error("Erreur d'authentification:", error.message); // Log d'erreur
-        res.status(401).json({ error: 'Invalid request!' });
-    }
+    // Vérification du token avec la clé secrète
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Ajout de l'ID utilisateur décodé à l'objet de requête
+    req.auth = {
+      userId: decodedToken.userId
+    };
+
+    // Passer au middleware suivant
+    next();
+  } catch (error) {
+    // En cas d'erreur, renvoyer une réponse 401 Unauthorized
+    res.status(401).json({ error: 'Invalid request!' });
+  }
 };
